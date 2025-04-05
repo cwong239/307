@@ -1,6 +1,7 @@
 // src/Table.jsx
 import React from "react";
 
+// displays the columns
 function TableHeader() {
     return (
       <thead>
@@ -11,7 +12,9 @@ function TableHeader() {
       </thead>
     );
   }
-  
+
+// displays the rows
+  // can have the state updated, and therefore the information being displayed will change
 function TableBody(props) {
   const rows = props.characterData.map((row, index) => {
     return (
