@@ -41,6 +41,12 @@ const findUserByName = (name) => {
     );
 };
 
+const findUserByNameAndJob = (name, job) => {
+  return users["users_list"].filter(
+      (user) => user["name"] === name && user["job"] === job
+  );
+};
+
 const findUserById = (id) =>
     users["users_list"].find((user) => user["id"] === id);
 
@@ -48,6 +54,13 @@ const addUser = (user) => {
     users["users_list"].push(user);
     return user;
   };
+
+const deleteUser = (userToDelete) => {
+  const index = users["users_list"].findIndex(user => user["id"] === userToDelete.id);
+  if (index !== -1) {
+      users["users_list"].splice(index, 1);
+  }
+};
   
 app.post("/users", (req, res) => {
     const userToAdd = req.body;
@@ -64,6 +77,25 @@ app.get("/users", (req, res) => {
     } else {
         res.send(users);
     }
+});
+
+app.delete("/users", (req, res) => {
+    const userToDelete = req.body;
+    deleteUser(userToDelete);
+    res.send();
+})
+
+// get all users that match a given name and a given job
+app.get("/users", (req, res) => {
+  const name = req.query.name;
+  const job = req.query.job;
+  if (name != undefined) {
+      let result = findUserByNameAndJob(name, job);
+      result = { users_list: result };
+      res.send(result);
+  } else {
+      res.send(users);
+  }
 });
 
 app.get("/users/:id", (req, res) => {
