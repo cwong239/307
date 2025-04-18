@@ -16,10 +16,29 @@ function MyApp() {
   // removes a character from the state dependant on the user input
     // the index refers to the location of the 'delete button' on the table, and that character will be removed
   function removeOneCharacter(index) {
-    const updated = characters.filter((character, i) => {
-      return i !== index;
-    });
-    setCharacters(updated);
+    const userToDelete = characters[index];
+    deleteUser(userToDelete)
+      .then((res) => {
+        if (res.status !== 204) {
+          throw new Error("Failed to delete user");
+        }
+        return fetchUsers();
+      })
+      .then(res => res.json())
+      .then(data => {
+        setCharacters(data["users_list"]);
+      })
+  }
+
+  function deleteUser(userToDelete){
+    const promise = fetch("http://localhost:8000/users", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userToDelete),
+    })
+    return promise
   }
 
   function fetchUsers() {
@@ -50,6 +69,9 @@ function MyApp() {
 
   function updateList(person) {
     postUser(person)
+      .then(res => {
+        if (res.status !== 201){ throw new Error("Not 201")}
+      })
       .then(() => setCharacters([...characters, person]))
       .catch((error) => {
         console.log(error);

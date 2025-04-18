@@ -34,6 +34,7 @@ const users = {
       }
     ]
   };
+const idSet = new Set("xyz789", "abc123", "ppp222", "yat999", "zap555");
 
 app.use(cors());
 app.use(express.json());
@@ -61,14 +62,22 @@ const addUser = (user) => {
 const deleteUser = (userToDelete) => {
   const index = users["users_list"].findIndex(user => user["id"] === userToDelete.id);
   if (index !== -1) {
-      users["users_list"].splice(index, 1);
+    users["users_list"].splice(index, 1);
+    idSet.delete(userToDelete.id);
+    return true;
   }
+  return false;
 };
   
 app.post("/users", (req, res) => {
     const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
+    let userId;
+    do {
+      userId = Math.floor(Math.random() * 1000).toString();
+    } while (idSet.has(userId));
+    userToAdd.id = userId;
+    idSet.add(userId)
+    res.status(201).json(addUser(userToAdd))
 });
 
 app.get("/users", (req, res) => {
@@ -83,10 +92,15 @@ app.get("/users", (req, res) => {
 });
 
 app.delete("/users", (req, res) => {
-    const userToDelete = req.body;
-    deleteUser(userToDelete);
-    res.send();
-})
+  const userToDelete = req.body;
+  const wasDeleted = deleteUser(userToDelete);
+
+  if (!wasDeleted) {
+    res.status(404).send({ error: "user not found" });
+  } else {
+    res.status(204).send();
+  }
+});
 
 // get all users that match a given name and a given job
 app.get("/users", (req, res) => {
