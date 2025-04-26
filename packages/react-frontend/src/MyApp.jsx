@@ -17,7 +17,7 @@ function MyApp() {
     // the index refers to the location of the 'delete button' on the table, and that character will be removed
   function removeOneCharacter(index) {
     const userToDelete = characters[index];
-    deleteUser(userToDelete)
+    deleteUser(userToDelete._id)
       .then((res) => {
         if (res.status !== 204) {
           throw new Error("Failed to delete user");
@@ -27,18 +27,17 @@ function MyApp() {
       .then(res => res.json())
       .then(data => {
         setCharacters(data["users_list"]);
-      })
+      });
   }
 
-  function deleteUser(userToDelete){
-    const promise = fetch("http://localhost:8000/users", {
+  function deleteUser(userId){
+    return fetch("http://localhost:8000/users", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userToDelete),
-    })
-    return promise
+      body: JSON.stringify({ _id: userId }),
+    });
   }
 
   function fetchUsers() {
@@ -56,7 +55,7 @@ function MyApp() {
   }, []);
 
   function postUser(person) {
-    const promise = fetch("Http://localhost:8000/users", {
+    const promise = fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
